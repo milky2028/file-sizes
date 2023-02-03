@@ -12,7 +12,9 @@ const format = new Intl.NumberFormat("en-us", {
   minimumFractionDigits: 2,
 }).format;
 
-const toHumanReadable = (bytes: number) => format(toKilobytes(bytes));
+function toHumanReadable(bytes: number) {
+  return format(toKilobytes(bytes);
+}
 
 async function filterAsync<T>(
   iterable: AsyncIterable<T>,
