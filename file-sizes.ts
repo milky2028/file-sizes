@@ -1,7 +1,7 @@
 import { compress as brotliCompress } from "https://deno.land/x/brotli@0.1.7/mod.ts";
 
 const BUILD_DIR =
-  "/Users/tgross/Documents/photoshop/photoshop/projects/psweb/build/static/js";
+  "/Users/tgross/git/photoshop/photoshop/projects/psweb/build/htdocs/static/js";
 
 function toKilobytes(bytes: number) {
   return bytes / 1_000;
@@ -13,7 +13,7 @@ const format = new Intl.NumberFormat("en-us", {
 }).format;
 
 function toHumanReadable(bytes: number) {
-  return format(toKilobytes(bytes);
+  return format(toKilobytes(bytes));
 }
 
 async function filterAsync<T>(
@@ -54,19 +54,15 @@ const loggableData = await Promise.all(
   })
 );
 
-const sortedLogs = loggableData.sort(
-  (a, b) => b.uncompressedSize - a.uncompressedSize
-);
+const sortedLogs = loggableData
+  .sort((a, b) => b.uncompressedSize - a.uncompressedSize)
+  .map((entry) => ({
+    ...entry,
+    uncompressedSize: `${toHumanReadable(entry.uncompressedSize)}kb`,
+    brotliSize: `${toHumanReadable(entry.brotliSize)}kb`,
+  }));
 
-sortedLogs.forEach(({ name, uncompressedSize, brotliSize }) => {
-  console.log(`%c${name}:`, "font-weight: bold; color: white;");
-  console.log(
-    `%cUncompressed Size: ${toHumanReadable(uncompressedSize)}kb`,
-    "color: green;"
-  );
-  console.log(
-    `%cBrotli Size: ${toHumanReadable(brotliSize)}kb`,
-    "color: blue;"
-  );
-  console.log("\n");
-});
+await Deno.writeFile(
+  "./pre-dunamis-esm.json",
+  new TextEncoder().encode(JSON.stringify(sortedLogs))
+);
