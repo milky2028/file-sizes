@@ -3,19 +3,6 @@ import { compress as brotliCompress } from "https://deno.land/x/brotli@0.1.7/mod
 const BUILD_DIR =
   "/Users/tgross/git/photoshop/photoshop/projects/psweb/build/htdocs/static/js";
 
-function toKilobytes(bytes: number) {
-  return bytes / 1_000;
-}
-
-const format = new Intl.NumberFormat("en-us", {
-  maximumFractionDigits: 2,
-  minimumFractionDigits: 2,
-}).format;
-
-function toHumanReadable(bytes: number) {
-  return format(toKilobytes(bytes));
-}
-
 async function filterAsync<T>(
   iterable: AsyncIterable<T>,
   callback: (item: T) => boolean
@@ -54,13 +41,9 @@ const loggableData = await Promise.all(
   })
 );
 
-const sortedLogs = loggableData
-  .sort((a, b) => b.uncompressedSize - a.uncompressedSize)
-  .map((entry) => ({
-    ...entry,
-    uncompressedSize: `${toHumanReadable(entry.uncompressedSize)}kb`,
-    brotliSize: `${toHumanReadable(entry.brotliSize)}kb`,
-  }));
+const sortedLogs = loggableData.sort(
+  (a, b) => b.uncompressedSize - a.uncompressedSize
+);
 
 await Deno.writeFile(
   "./pre-dunamis-esm.json",
